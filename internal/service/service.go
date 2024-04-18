@@ -68,12 +68,16 @@ var TimeNow = timeNowFunc()
 // returns an Navegation Feed when the entries are other folders
 func (s OPDS) Handler(w http.ResponseWriter, req *http.Request) error {
 	var err error
-	urlPath, err := url.PathUnescape(req.URL.Path)
+	absUrlPath, err := url.PathUnescape(req.URL.Path)
 	if err != nil {
 		log.Printf("error while serving '%s': %s", req.URL.Path, err)
 		return err
 	}
 
+	// collapse first path to allow serving from a path like /opds
+	absUrlPath = absUrlPath + "/"
+	paths := strings.Split(absUrlPath, "/")
+	urlPath := strings.Join(paths[2:], "/")
 	fPath := filepath.Join(s.TrustedRoot, urlPath)
 
 	// verifyPath avoid the http transversal by checking the path is under DirRoot
